@@ -60,7 +60,14 @@ export default function Home() {
   const handleClose = () => setOpen(false)
 
   return (
-    <Box width="100vh" height="100vh" display="flex" justifyContent="center" alignItems="center" gap={2}>
+    <Box 
+    width="100vh"
+    height="100vh"
+    display="flex"
+    justifyContent="center"
+    alignItems="center"
+    gap={2} 
+    flexDirection="column">
       <Modal open={open} onClose={handleClose}>
         <Box position="absolute" top="50%" left="50%"
         sx={{
@@ -101,7 +108,23 @@ export default function Home() {
         handleOpen()
       }}
       >Add new Item</Button>
-      
+      <Box border="1px solid black">
+        <Box width="800px" height="100px"
+        bgcolor="pink" alignItems="center" justifyContent="center"
+        display="flex">
+          <Typography variant="h2" color='#333'>Inventory Items</Typography>
+        </Box>
+      </Box>
+      <Stack width="300px"
+      height= "300px"
+      spacing={2}
+      overflow="auto">
+        {
+          inventory.map(({name, quantity} => {
+            <Box></Box>
+          }))
+        }
+      </Stack>
     </Box>
   )
 }
