@@ -56,8 +56,11 @@ export default function Home() {
     updateInventory()
   }, [])
 
+  const handleOpen = () => setOpen(true)
+  const handleClose = () => setOpen(false)
+
   return (
-    <Box>
+    <Box width="100vh" height="100vh" display="flex" justifyContent="center" alignItems="center" gap={2}>
       <Typography variant="h1">
         Inventory Management
       </Typography>
