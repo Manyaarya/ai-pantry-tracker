@@ -119,11 +119,28 @@ export default function Home() {
       height= "300px"
       spacing={2}
       overflow="auto">
-        {
-          inventory.map(({name, quantity} => {
-            <Box></Box>
-          }))
-        }
+        {inventory.map(({name, quantity}) => (
+            <Box key={name} width="100%"
+            minHeight="150px"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            bgcolor="#f0f0f0"
+            padding={5}
+            >
+              <Typography variant="h3"
+              color="#333"
+              textAlign="center" >
+                 {name.charAt(0).toUpperCase() + name.slice(1)}
+                 </Typography>
+
+                 <Typography variant="h3"
+              color="#333"
+              textAlign="center" >
+                 {quantity}
+                 </Typography>
+            </Box>
+          ))}
       </Stack>
     </Box>
   )
