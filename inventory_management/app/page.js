@@ -3,7 +3,7 @@ import Image from "next/image"
 import { useState, useEffect } from 'react'
 import { firestore } from "@/firebase"
 import { Box, Typography, Modal, Stack, TextField, Button} from "@mui/material"
-import { query, collection, getDocs, deleteDoc, doc } from "firebase/firestore"
+import { query, collection, getDocs, setDoc, deleteDoc, doc, getDoc } from "firebase/firestore"
 
 export default function Home() {
   const [inventory, setInventory] = useState([])
@@ -23,7 +23,7 @@ export default function Home() {
   }
 
   const addItem = async (item) => {
-    const docRef = doc(collection(firestone, 'inventory'), item)
+    const docRef = doc(collection(firestore, 'inventory'), item)
     const docSnap = await getDoc(docRef)
 
     if(docSnap.exists()) {
@@ -37,7 +37,7 @@ export default function Home() {
 
 
  const removeItem = async (item) => {
-  const docRef = doc(collection(firestone, 'inventory'), item)
+  const docRef = doc(collection(firestore, 'inventory'), item)
   const docSnap = await getDoc(docRef)
 
   if(docSnap.exists()) {
@@ -114,8 +114,7 @@ export default function Home() {
         display="flex">
           <Typography variant="h2" color='#333'>Inventory Items</Typography>
         </Box>
-      </Box>
-      <Stack width="300px"
+      <Stack width="800px"
       height= "300px"
       spacing={2}
       overflow="auto">
@@ -139,9 +138,18 @@ export default function Home() {
               textAlign="center" >
                  {quantity}
                  </Typography>
+                 <Stack direction="row" spacing={2}>
+                 <Button variant="contained" onClick={()=>{
+                  addItem(name) }}>Add
+                  </Button>
+                 <Button variant="contained" onClick={()=>{
+                  removeItem(name) }}>Remove
+                  </Button>
+                  </Stack>
             </Box>
           ))}
       </Stack>
+      </Box>
     </Box>
   )
 }
