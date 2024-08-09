@@ -12,7 +12,7 @@ const Dashboard = ({ inventory }) => {
 
   return (
     <Box sx={{ p: 2, bgcolor: '#f5f5f5', borderRadius: 2, mb: 2, boxShadow: 1 }}>
-      <Typography variant="h4" sx={{ mb: 2, fontFamily: 'Montserrat, sans-serif' }}>Inventory Dashboard</Typography>
+      <Typography variant="h4" sx={{ mb: 2,textAlign: "center", fontFamily: 'Montserrat, sans-serif', textDecoration: "underline 1px #001845"}}>Inventory Dashboard</Typography>
       <Grid container spacing={2}>
         <Grid item xs={12} sm={4}>
           <Card sx={{ bgcolor: '#ffffff', boxShadow: 1 }}>
@@ -155,7 +155,7 @@ export default function Home() {
       }}
     >
       <Box sx={{ bgcolor: '#001845', p: 2 }}> {/* Header */}
-        <Typography variant="h4" color="white" sx={{ fontFamily: 'Montserrat, sans-serif' }}>Inventory Management</Typography>
+        <Typography variant="h4" color="white" textAlign= "center" sx={{ fontFamily: 'Verdana' }}>Kiki</Typography>
       </Box>
 
       <Dashboard inventory={inventory} />
