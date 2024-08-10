@@ -1,8 +1,11 @@
-'use client'
-import { useState, useEffect } from 'react'
-import { firestore } from "@/firebase"
-import { Box, Typography, Modal, Stack, TextField, Button, Card, CardContent, Select, MenuItem, Pagination, Grid } from "@mui/material"
-import { query, collection, getDocs, setDoc, deleteDoc, doc, getDoc } from "firebase/firestore"
+'use client';
+
+import { useState, useEffect } from 'react';
+import { firestore } from "@/firebase"; // Ensure this is correctly set up
+import { Box, Typography, Modal, Stack, TextField, Button, Card, CardContent, Select, MenuItem, Pagination, Grid } from "@mui/material";
+import { query, collection, getDocs, setDoc, deleteDoc, doc, getDoc } from "firebase/firestore";
+import { useUser, UserButton } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 // Dashboard Component
 const Dashboard = ({ inventory }) => {
@@ -12,7 +15,7 @@ const Dashboard = ({ inventory }) => {
 
   return (
     <Box sx={{ p: 2, bgcolor: '#f5f5f5', borderRadius: 2, mb: 2, boxShadow: 1 }}>
-      <Typography variant="h4" sx={{ mb: 2,textAlign: "center", fontFamily: 'Montserrat, sans-serif', textDecoration: "underline 1px #001845"}}>Inventory Dashboard</Typography>
+      <Typography variant="h4" sx={{ mb: 2, fontFamily: 'Montserrat, sans-serif' }}>Inventory Dashboard</Typography>
       <Grid container spacing={2}>
         <Grid item xs={12} sm={4}>
           <Card sx={{ bgcolor: '#ffffff', boxShadow: 1 }}>
@@ -43,70 +46,84 @@ const Dashboard = ({ inventory }) => {
   );
 };
 
-export default function Home() {
-  const [inventory, setInventory] = useState([])
-  const [open, setOpen] = useState(false)
-  const [editingItem, setEditingItem] = useState(null)
-  const [itemName, setItemName] = useState('')
-  const [editedName, setEditedName] = useState('')
-  const [editedQuantity, setEditedQuantity] = useState(0)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [sortBy, setSortBy] = useState('name')
-  const [sortDirection, setSortDirection] = useState('asc')
-  const [page, setPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+const Home = () => {
+  const { isSignedIn } = useUser(); // Check if the user is signed in
+  const router = useRouter();
+  const [inventory, setInventory] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [itemName, setItemName] = useState('');
+  const [editedName, setEditedName] = useState('');
+  const [editedQuantity, setEditedQuantity] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('name');
+  const [sortDirection, setSortDirection] = useState('asc');
+  const [page, setPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
+    // Redirect to sign-in if not authenticated
+    useEffect(() => {
+      if (!isSignedIn) {
+        router.push('auth/sign-in'); // Redirect to sign-in page if not signed in
+      }
+    }, [isSignedIn, router]);
+
+  // Function to update inventory
   const updateInventory = async () => {
-    const snapshot = await getDocs(query(collection(firestore, 'inventory')))
-    const inventoryList = []
+    const snapshot = await getDocs(query(collection(firestore, 'inventory')));
+    const inventoryList = [];
     snapshot.forEach((doc) => {
       inventoryList.push({
         name: doc.id,
         ...doc.data(),
-      })
-    })
-    setInventory(inventoryList)
-  }
+      });
+    });
+    setInventory(inventoryList);
+  };
 
+  // Function to add an item
   const addItem = async (item) => {
     if (!item) return; // Exit if item name is empty
 
-    const docRef = doc(collection(firestore, 'inventory'), item)
-    const docSnap = await getDoc(docRef)
+    const docRef = doc(collection(firestore, 'inventory'), item);
+    const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      const { quantity } = docSnap.data()
-      await setDoc(docRef, { quantity: quantity + 1 })
+      const { quantity } = docSnap.data();
+      await setDoc(docRef, { quantity: quantity + 1 });
     } else {
-      await setDoc(docRef, { quantity: 1 })
+      await setDoc(docRef, { quantity: 1 });
     }
-    await updateInventory()
-  }
+    await updateInventory();
+  };
 
+  // Function to remove an item
   const removeItem = async (item) => {
     if (!item) return; // Exit if item name is empty
 
-    const docRef = doc(collection(firestore, 'inventory'), item)
-    const docSnap = await getDoc(docRef)
+    const docRef = doc(collection(firestore, 'inventory'), item);
+    const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      const { quantity } = docSnap.data()
+      const { quantity } = docSnap.data();
       if (quantity === 1) {
-        await deleteDoc(docRef)
+        await deleteDoc(docRef);
       } else {
-        await setDoc(docRef, { quantity: quantity - 1 })
+        await setDoc(docRef, { quantity: quantity - 1 });
       }
     }
-    await updateInventory()
-  }
+    await updateInventory();
+  };
 
+  // Function to edit an item
   const editItem = async () => {
     const docRef = doc(collection(firestore, 'inventory'), editedName);
     await setDoc(docRef, { quantity: editedQuantity });
     setEditingItem(null);
     updateInventory();
-  }
+  };
 
+  // Function to export inventory to CSV
   const exportToCSV = () => {
     const csvData = [['Name', 'Quantity']];
     inventory.forEach(item => {
@@ -126,8 +143,8 @@ export default function Home() {
   };
 
   useEffect(() => {
-    updateInventory()
-  }, [])
+    updateInventory();
+  }, []);
 
   const filteredInventory = inventory.filter(item =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -145,6 +162,8 @@ export default function Home() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = sortedInventory.slice(indexOfFirstItem, indexOfLastItem);
 
+
+
   return (
     <Box
       sx={{
@@ -155,7 +174,8 @@ export default function Home() {
       }}
     >
       <Box sx={{ bgcolor: '#001845', p: 2 }}> {/* Header */}
-        <Typography variant="h4" color="white" textAlign= "center" sx={{ fontFamily: 'Verdana' }}>Kiki</Typography>
+        <Typography variant="h4" color="white" sx={{ fontFamily: 'Montserrat, sans-serif' }}>Inventory Management</Typography>
+        {isSignedIn && <UserButton />} {/* Display UserButton if signed in */}
       </Box>
 
       <Dashboard inventory={inventory} />
@@ -278,9 +298,9 @@ export default function Home() {
               variant="contained"
               color="primary"
               onClick={() => {
-                addItem(itemName)
-                setItemName('')
-                setOpen(false)
+                addItem(itemName);
+                setItemName('');
+                setOpen(false);
               }}
               disabled={!itemName} // Disable if itemName is empty
               sx={{ bgcolor: '#001845', '&:hover': { bgcolor: '#003366' }, fontFamily: 'Montserrat, sans-serif' }}
@@ -337,5 +357,7 @@ export default function Home() {
         </Box>
       </Modal>
     </Box>
-  )
-}
+  );
+};
+
+export default Home;
